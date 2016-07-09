@@ -33,25 +33,17 @@ namespace ConsoleApplication
             Configuration = builder.Build();
             Configuration["somekey"] = "somevalue";
             ConfigServices(Configuration);
-
         }
 
         private static void ConfigServices(IConfigurationRoot configuration)
         {
             IServiceCollection services = new ServiceCollection();
             services.AddOptions();
-             var section = configuration.GetSection("MyOptions");
-            // var config = Configuration["MyOptions:Option1"];
-            services.Configure<MyOptions>(section);
+            services.Configure<MyOptions>(configuration.GetSection("MyOptions"));
 
             services.AddTransient(typeof(IDummyInterface), typeof(DummyClass));
 
-            Provider = services.BuildServiceProvider();
-            //var options = provider.GetService(typeof(MyOptions));
-
-            //var dummyClass = new DummyClass(provider.get));
-
-            //services.Add(new ServiceDescriptor(typeof(DummyClass), new DummyClass(provider.GetService)));
+            Provider = services.BuildServiceProvider();           
         }
     }
 
