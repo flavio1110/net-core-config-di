@@ -4,5 +4,6 @@ namespace ConsoleApplication
     {
         void Authorize();
         void Capture();
+        void LogEverything();
     }
 }

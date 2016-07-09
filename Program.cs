@@ -4,8 +4,7 @@ using Microsoft.Extensions.Configuration;
 namespace ConsoleApplication
 {
     public class Program
-    {
-        
+    {        
         public static void Main(string[] args)
         {
             Application.Startup();            
@@ -18,6 +17,7 @@ namespace ConsoleApplication
 
             customService.Authorize();
             customService.Capture();
+            customService.LogEverything();
         }       
     }
 }

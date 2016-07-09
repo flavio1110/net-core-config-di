@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace ConsoleApplication
 {
@@ -25,11 +27,17 @@ namespace ConsoleApplication
 
         private static IServiceProvider ConfigServices(IConfigurationRoot configuration)
         {
-            IServiceCollection services = new ServiceCollection();
-            services.AddOptions();
-            services.Configure<CustomServiceConfig>(configuration.GetSection("CustomServiceConfig"));
+            Func<string, LogLevel, bool> func = (category, loglevel) => loglevel >= LogLevel.Trace;
 
-            services.AddTransient(typeof(ICustomService), typeof(CustomService));
+            ILogger logger = new ConsoleLogger("teste", func, false);
+
+            IServiceCollection services = new ServiceCollection();
+            
+            services.AddOptions()
+                .Configure<CustomServiceConfig>(configuration.GetSection("CustomServiceConfig"))
+                .AddTransient(typeof(ICustomService), typeof(CustomService))
+                .AddTransient(typeof(ILogger), typeof(CustomService))
+                .Add(new ServiceDescriptor(typeof(ILogger), logger));
 
             return services.BuildServiceProvider();           
         }
