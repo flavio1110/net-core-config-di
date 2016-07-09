@@ -1,76 +1,23 @@
 ﻿using System;
-using System.IO;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace ConsoleApplication
 {
     public class Program
     {
-        static IConfigurationRoot Configuration { get; set; }
-        static IServiceProvider Provider {get;set;}
+        
         public static void Main(string[] args)
         {
-            Setup();
-
-            Console.WriteLine(Configuration["somekey"]);
-            Console.WriteLine(Configuration.GetConnectionString("DefaultConnection"));
+            Application.Startup();            
             
-            var dummy = Provider.GetService(typeof(IDummyInterface)) as IDummyInterface;
+            Console.WriteLine(Application.Configuration["somekey"]);
 
-            if(dummy != null)
-                System.Console.WriteLine(dummy.GetOptions());
-        }
-
-        private static void Setup()
-        {
-            var builder = new ConfigurationBuilder();
-            builder
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddInMemoryCollection()
-               .AddJsonFile("appsettings.json");
-            Configuration = builder.Build();
-            Configuration["somekey"] = "somevalue";
-            ConfigServices(Configuration);
-        }
-
-        private static void ConfigServices(IConfigurationRoot configuration)
-        {
-            IServiceCollection services = new ServiceCollection();
-            services.AddOptions();
-            services.Configure<MyOptions>(configuration.GetSection("MyOptions"));
-
-            services.AddTransient(typeof(IDummyInterface), typeof(DummyClass));
-
-            Provider = services.BuildServiceProvider();           
-        }
-    }
-
-    public interface IDummyInterface
-    {
-        string GetOptions();
-    }
-    public class DummyClass : IDummyInterface
-    {
-        private IOptions<MyOptions> _optionsAccessor;
-
-        public DummyClass(IOptions<MyOptions> optionsAcessor)
-        {
-            _optionsAccessor = optionsAcessor;
-        }
-
-        public string GetOptions()
-        {
-            MyOptions options = _optionsAccessor.Value;
+            Console.WriteLine(Application.Configuration.GetConnectionString("DefaultConnection"));
             
-            return $"{options.Option1} {options.Option2}";
-        }
-        
-    }
-    public class MyOptions
-    {
-        public string Option1 { get; set; }
-        public int Option2 { get; set; }
+            ICustomService customService = Application.GetService<ICustomService>();
+
+            customService.Authorize();
+            customService.Capture();
+        }       
     }
 }
